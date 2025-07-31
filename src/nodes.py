@@ -1,6 +1,8 @@
 from enum import IntEnum, auto
 from assets.asset_loader import load_image
 import pyglet
+from typing import Final
+
 
 class NodeType(IntEnum):
     NO_NODE = auto()
@@ -12,8 +14,18 @@ class Node(object):
     Specifies an assets and its position on screen.
     """
 
-    def __init__(self, asset_name: str, x: int, y: int) -> None:
+    DEFAULT_HEIGHT: Final = 64
+    DEFAULT_WIDTH: Final = 64
+
+    def __init__(self,
+                 asset_name: str,
+                 x: int,
+                 y: int,
+                 width: int = DEFAULT_WIDTH,
+                 height: int = DEFAULT_HEIGHT) -> None:
         self.sprite = pyglet.sprite.Sprite(load_image(asset_name), x=x, y=y)
+        self.sprite.width = width
+        self.sprite.height = height
         self.x = x
         self.y = y
 
