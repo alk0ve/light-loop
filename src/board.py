@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from nodes.node import Node
+from nodes import Node
 
 
 class Board(object):
@@ -19,5 +16,6 @@ class Board(object):
         self.paths = paths
 
     def draw(self):
-        # TODO
-        pass
+        # TODO sprite batching
+        for node in self.nodes:
+            node.draw()
