@@ -1,4 +1,5 @@
 from nodes import Node
+import pyglet
 
 
 class Board(object):
@@ -14,8 +15,11 @@ class Board(object):
         # TODO fog of war
         self.nodes = nodes
         self.paths = paths
+        self.nodes_batch = pyglet.graphics.Batch()
+
+        # place all the nodes in the same batch
+        for node in self.nodes:
+            node.sprite.batch = self.nodes_batch
 
     def draw(self):
-        # TODO sprite batching
-        for node in self.nodes:
-            node.draw()
+        self.nodes_batch.draw()
