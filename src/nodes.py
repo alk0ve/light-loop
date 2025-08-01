@@ -41,7 +41,7 @@ class NoNode(Node):
 
 ####################################################################################
 def create_node(node_type: NodeType, x: int, y: int) -> Node:
-    print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
+    # print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
     match node_type:
         case NodeType.NO_NODE:
             return NoNode(x, y)
