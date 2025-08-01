@@ -44,14 +44,12 @@ def main():
         else:
             if len(front) == 0:
                 animation_ends()
-                print("done somehow")
                 return
 
             if pulses.alive():
                 pulses.update(delta_time)
             else:
                 front = level.board.next_pulse_front(front)
-                # print(f"new front: {front}")
                 pulses = level.board.create_pulse_front(front, pulse_batch)
 
     def animation_ends():
@@ -60,7 +58,6 @@ def main():
         front = set()
         pulses = None
         ui_state = UIState.EDITING
-        print("animation --> edit")
 
     @window.event
     def on_key_press(symbol, modifiers):
@@ -68,13 +65,10 @@ def main():
 
         if symbol == key.SPACE:
             if ui_state == UIState.EDITING:
-                print("edit --> animation")
                 # start animating
                 front = level.board.first_pulse_front()
-                print(f"front = {front}")
                 pulses = level.board.create_pulse_front(front, pulse_batch)
                 ui_state = UIState.ANIMATING
-                print("lets go")
             else:
                 # stop animating
                 animation_ends()

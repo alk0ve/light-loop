@@ -5,7 +5,7 @@ from typing import Final
 
 
 class NodeType(IntEnum):
-    NO_NODE = auto()
+    BLOCK = auto()
     BROADCAST_ONCE = auto()
 
 
@@ -39,13 +39,13 @@ class Node(object):
         pass
 
 
-class NoNode(Node):
+class BlockNode(Node):
     """
-    TODO a blocker node
+    Doesn't forward anything.
     """
 
     def __init__(self, x: int, y: int):
-        super().__init__(None, x, y)
+        super().__init__("nodes/Rock2_grass_shadow1.png", x, y)
 
     def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
         return set()
@@ -79,14 +79,13 @@ class BroadcastOnceNode(Node):
 def create_node(node_type: NodeType, x: int, y: int) -> Node:
     # print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
     match node_type:
-        case NodeType.NO_NODE:
-            return NoNode(x, y)
+        case NodeType.BLOCK:
+            return BlockNode(x, y)
         case NodeType.BROADCAST_ONCE:
             return BroadcastOnceNode(x, y)
         case _:
             raise ValueError(f"node_type {node_type} not supported")
 
 
-def create_nodes(node_types: list[NodeType], positions: list[tuple[int, int]]) -> list[Node]:
-    assert len(node_types) == len(positions)
-    return [create_node(node_types[i], *positions[i]) for i in range(len(node_types))]
+def create_nodes(node_args: list[tuple[NodeType, int, int]]) -> list[Node]:
+    return [create_node(*args) for args in node_args]
