@@ -1,5 +1,5 @@
-from nodes import Node
 import pyglet
+from nodes import Node
 from typing import Final
 
 PATH_COLOR: Final = (50, 82, 123)
@@ -18,17 +18,33 @@ class Board(object):
     - a list of fog-of-war data (TBD)
     """
 
-    def __init__(self, nodes: list[Node], paths: list[tuple[int, int]]) -> None:
+    def __init__(self, nodes: list[Node], paths: set[tuple[int, int]]) -> None:
         # TODO fog of war
         self.nodes = nodes
-        self.paths = paths
+        self.paths = paths # used for rendering
         self.batch = pyglet.graphics.Batch()
         self.background = pyglet.graphics.Group(order=0)
         self.background2 = pyglet.graphics.Group(order=1)
         self.foreground = pyglet.graphics.Group(order=2)
         self.shapes: list[pyglet.shapes.ShapeBase] = []
 
-        # place all the nodes in the same batch
+        # compute neighbour data
+        self.neighbours = {}
+        for i in range(len(paths)):
+            self.neighbours[i] = set()
+        for path in self.paths:
+            i, j = path
+            self.neighbours[i].add(j)
+            self.neighbours[j].add(i)
+
+        # mark the staring node
+        circle = pyglet.shapes.Circle(x=nodes[0].x, y=nodes[0].y,
+                                      radius=2 * Node.DEFAULT_SIZE // 3,
+                                      color=PATH_COLOR,
+                                      batch=self.batch,
+                                      group=self.background)
+        self.shapes.append(circle)
+
         for node in self.nodes:
             if node.sprite is not None:
                 node.sprite.batch = self.batch
@@ -72,3 +88,23 @@ class Board(object):
 
     def draw(self):
         self.batch.draw()
+
+    def first_pulse_front(self) -> set[tuple[int, int]]:
+        front = self.nodes[0].emit(self.neighbours[0], set())
+        return set([(0, f) for f in front])
+
+    def next_pulse_front(self, last_front: set[tuple[int, int]]) -> set[tuple[int, int]]:
+        next_front = set()
+
+        # find all the pulsing neighbours for each neighbour
+        pulsing_neighbours = {}
+        for f in last_front:
+            pulsing_neighbours[f[1]] = set()
+        for f in last_front:
+            pulsing_neighbours[f[1]].add(f[0])
+
+        for neighbour, pulsing in pulsing_neighbours.items():
+            front = self.nodes[neighbour].emit(self.neighbours[neighbour], pulsing)
+            next_front.update([(neighbour, f) for f in front])
+
+        return next_front

@@ -32,27 +32,47 @@ class Node(object):
         self.x = x
         self.y = y
 
+    def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
+        raise NotImplementedError
+
 
 class NoNode(Node):
     """
-    An empty space, a placeholder for a past/future nodes.
+    TODO a blocker node
     """
 
     def __init__(self, x: int, y: int):
         super().__init__(None, x, y)
 
+    def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
+        return set()
+
+    def reset(self):
+        pass
+
 
 class BroadcastOnceNode(Node):
     """
-    Emit pulses to all the paths exactly once.
+    Emit pulses to all the empty paths exactly once (don't reflect).
     Ignore incoming pulses.
     """
 
     def __init__(self, x: int, y: int):
         super().__init__("nodes/White_crystal2.png", x, y)
+        self.emitted = False
+
+    def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
+        if self.emitted:
+            return set()
+        self.emitted = True
+        return neighbours - pulsing_neighbours
+
+    def reset(self):
+        self.emitted = False
 
 
 ####################################################################################
+
 def create_node(node_type: NodeType, x: int, y: int) -> Node:
     # print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
     match node_type:
