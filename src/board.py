@@ -1,6 +1,7 @@
 import pyglet
 from nodes import Node
 from typing import Final
+from pulse import PulseFront
 
 PATH_COLOR: Final = (50, 82, 123)
 PATH_WIDTH: Final = 20.0
@@ -108,3 +109,6 @@ class Board(object):
             next_front.update([(neighbour, f) for f in front])
 
         return next_front
+
+    def create_pulse_front(self, front: set[tuple[int, int]], batch: pyglet.graphics.Batch) -> PulseFront:
+        return PulseFront([(self.nodes[path[0]], self.nodes[path[1]]) for path in front], batch)

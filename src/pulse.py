@@ -14,19 +14,21 @@ class Pulse(object):
     vy: float
     t: float = 0
 
-    def __init__(self, start_node: Node, end_node: Node):
+    def __init__(self, start_node: Node, end_node: Node, batch: pyglet.graphics.Batch):
         # TODO start outside the radius of the node
         self.x = start_node.x
         self.y = start_node.y
-        self.dx = (end_node.x - start_node.x) / TRANSIT_TIME
-        self.dy = (end_node.y - start_node.y) / TRANSIT_TIME
+        self.vx = (end_node.x - start_node.x) / TRANSIT_TIME
+        self.vy = (end_node.y - start_node.y) / TRANSIT_TIME
 
-        self.sprite = pyglet.sprite.Sprite(load_image("pulse/Icons_22.png"), x=self.x, y=self.y)
+        self.sprite = pyglet.sprite.Sprite(load_image("pulse/Icons_22.png"), x=self.x, y=self.y, batch=batch)
 
     def update(self, delta_time):
         self.t += delta_time
         self.x += self.vx * delta_time
         self.y += self.vy * delta_time
+        self.sprite.x = self.x
+        self.sprite.y = self.y
 
 
 class PulseFront(object):
@@ -34,8 +36,8 @@ class PulseFront(object):
 
     t: float = 0
 
-    def __init__(self, paths: list[tuple[Node, Node]]):
-        self.pulses = [Pulse(*path) for path in paths]
+    def __init__(self, paths: list[tuple[Node, Node]], batch: pyglet.graphics.Batch):
+        self.pulses = [Pulse(path[0], path[1], batch) for path in paths]
 
     def update(self, delta_time):
         self.t += delta_time

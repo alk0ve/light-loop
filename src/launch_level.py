@@ -17,8 +17,10 @@ from pulse import PulseFront
 
 def main():
     level = FIRST_LEVEL
-
     pulse_batch = pyglet.graphics.Batch()
+    front = level.board.first_pulse_front()
+    pulses = level.board.create_pulse_front(front, pulse_batch)
+    print(f"starting front: {front}")
 
     @window.event
     def on_draw():
@@ -27,13 +29,19 @@ def main():
         pulse_batch.draw()
 
     def update(delta_time):
-        pass
+        nonlocal pulses, front
 
-    front = level.board.first_pulse_front()
-    while len(front) > 0:
-        print(front)
-        front = level.board.next_pulse_front(last_front=front)
+        if len(front) == 0:
+            # print("front empty")
+            return
 
+        if pulses.alive():
+            pulses.update(delta_time)
+            print(f"update after {delta_time}")
+        else:
+            front = level.board.next_pulse_front(front)
+            print(f"new front: {front}")
+            pulses = level.board.create_pulse_front(front, pulse_batch)
 
     pyglet.clock.schedule_interval(update, 1 / 60)
     pyglet.app.run()
