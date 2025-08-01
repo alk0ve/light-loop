@@ -15,7 +15,6 @@ class Pulse(object):
     t: float = 0
 
     def __init__(self, start_node: Node, end_node: Node, batch: pyglet.graphics.Batch):
-        # TODO start outside the radius of the node
         self.x = start_node.x
         self.y = start_node.y
         self.vx = (end_node.x - start_node.x) / TRANSIT_TIME

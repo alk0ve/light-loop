@@ -34,3 +34,10 @@ FIRST_LEVEL = Level(Board(create_nodes([NodeType.BROADCAST_ONCE, NodeType.BROADC
                     [],
                     0,
                     99)
+
+SECOND_LEVEL = Level(Board(create_nodes([NodeType.BROADCAST_ONCE] * 5,
+                                        [(100, 400), (300, 400), (500, 200), (500, 600), (700, 400)]),
+                           {(0, 1), (1, 2), (1, 3), (2, 4), (3, 4), (4, 1)}),
+                     [],
+                     0,
+                     99)

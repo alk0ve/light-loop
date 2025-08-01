@@ -11,12 +11,11 @@ WINDOW_HEIGHT: Final = 800
 window = pyglet.window.Window(resizable=False, width=WINDOW_WIDTH, height=WINDOW_HEIGHT, caption="light loop")
 
 # only now you can create sprites elsewhere
-from levels import FIRST_LEVEL
-from pulse import PulseFront
+import levels
 
 
 def main():
-    level = FIRST_LEVEL
+    level = levels.SECOND_LEVEL
     pulse_batch = pyglet.graphics.Batch()
     front = level.board.first_pulse_front()
     pulses = level.board.create_pulse_front(front, pulse_batch)
@@ -37,7 +36,6 @@ def main():
 
         if pulses.alive():
             pulses.update(delta_time)
-            print(f"update after {delta_time}")
         else:
             front = level.board.next_pulse_front(front)
             print(f"new front: {front}")
