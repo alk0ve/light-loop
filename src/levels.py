@@ -28,8 +28,8 @@ class Level(object):
         # TODO draw UI elements
 
 
-FIRST_LEVEL = Level(Board(create_nodes([NodeType.NO_NODE, NodeType.NO_NODE, NodeType.NO_NODE],
-                                       [(200, 200), (400, 200), (300, 500)]),
+FIRST_LEVEL = Level(Board(create_nodes([NodeType.BROADCAST_ONCE, NodeType.BROADCAST_ONCE, NodeType.BROADCAST_ONCE],
+                                       [(200, 200), (500, 200), (300, 500)]),
                           [(0, 1), (1, 2), (2, 0)]),
                     [],
                     0,

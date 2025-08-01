@@ -2,8 +2,11 @@ from nodes import Node
 import pyglet
 from typing import Final
 
-PATH_COLOR: Final = (210, 180, 140)  # tan
+PATH_COLOR: Final = (50, 82, 123)
 PATH_WIDTH: Final = 20.0
+
+INNER_PATH_COLOR: Final = (79, 115, 142)
+FRAME_THICKNESS: Final = 8
 
 
 class Board(object):
@@ -19,20 +22,30 @@ class Board(object):
         # TODO fog of war
         self.nodes = nodes
         self.paths = paths
-        self.nodes_batch = pyglet.graphics.Batch()
-        self.paths_batch = pyglet.graphics.Batch()
+        self.batch = pyglet.graphics.Batch()
+        self.background = pyglet.graphics.Group(order=0)
+        self.background2 = pyglet.graphics.Group(order=1)
+        self.foreground = pyglet.graphics.Group(order=2)
         self.shapes: list[pyglet.shapes.ShapeBase] = []
 
         # place all the nodes in the same batch
         for node in self.nodes:
             if node.sprite is not None:
-                node.sprite.batch = self.nodes_batch
+                node.sprite.batch = self.batch
+                node.sprite.group = self.foreground
             # add a circle as background for each node
             circle = pyglet.shapes.Circle(x=node.x, y=node.y,
                                           radius=Node.DEFAULT_SIZE // 2,
                                           color=PATH_COLOR,
-                                          batch=self.paths_batch)
+                                          batch=self.batch,
+                                          group=self.background)
             self.shapes.append(circle)
+            inner_circle = pyglet.shapes.Circle(x=node.x, y=node.y,
+                                                radius=(Node.DEFAULT_SIZE // 2) - FRAME_THICKNESS,
+                                                color=INNER_PATH_COLOR,
+                                                batch=self.batch,
+                                                group=self.background2)
+            self.shapes.append(inner_circle)
 
         # create path shapes
         for path in self.paths:
@@ -44,9 +57,18 @@ class Board(object):
                                       y2=end_node.y,
                                       color=PATH_COLOR,
                                       thickness=PATH_WIDTH,
-                                      batch=self.paths_batch)
+                                      batch=self.batch,
+                                      group=self.background)
             self.shapes.append(line)
+            inner_line = pyglet.shapes.Line(x=start_node.x,
+                                            y=start_node.y,
+                                            x2=end_node.x,
+                                            y2=end_node.y,
+                                            color=INNER_PATH_COLOR,
+                                            thickness=PATH_WIDTH - FRAME_THICKNESS,
+                                            batch=self.batch,
+                                            group=self.background2)
+            self.shapes.append(inner_line)
 
     def draw(self):
-        self.paths_batch.draw()
-        self.nodes_batch.draw()
+        self.batch.draw()

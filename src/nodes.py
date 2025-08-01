@@ -6,6 +6,7 @@ from typing import Final
 
 class NodeType(IntEnum):
     NO_NODE = auto()
+    BROADCAST_ONCE = auto()
 
 
 class Node(object):
@@ -41,12 +42,24 @@ class NoNode(Node):
         super().__init__(None, x, y)
 
 
+class BroadcastOnceNode(Node):
+    """
+    Emit pulses to all the paths exactly once.
+    Ignore incoming pulses.
+    """
+
+    def __init__(self, x: int, y: int):
+        super().__init__("nodes/White_crystal2.png", x, y)
+
+
 ####################################################################################
 def create_node(node_type: NodeType, x: int, y: int) -> Node:
     # print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
     match node_type:
         case NodeType.NO_NODE:
             return NoNode(x, y)
+        case NodeType.BROADCAST_ONCE:
+            return BroadcastOnceNode(x, y)
         case _:
             raise ValueError(f"node_type {node_type} not supported")
 
