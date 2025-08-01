@@ -35,6 +35,9 @@ class Node(object):
     def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
         raise NotImplementedError
 
+    def reset(self):
+        pass
+
 
 class NoNode(Node):
     """
