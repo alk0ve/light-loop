@@ -25,19 +25,27 @@ class Board(object):
 
         # place all the nodes in the same batch
         for node in self.nodes:
-            node.sprite.batch = self.nodes_batch
-            #
+            if node.sprite is not None:
+                node.sprite.batch = self.nodes_batch
+            # add a circle as background for each node
+            circle = pyglet.shapes.Circle(x=node.x, y=node.y,
+                                          radius=Node.DEFAULT_SIZE // 2,
+                                          color=PATH_COLOR,
+                                          batch=self.paths_batch)
+            self.shapes.append(circle)
+
         # create path shapes
         for path in self.paths:
             start_node = self.nodes[path[0]]
             end_node = self.nodes[path[1]]
-            self.shapes.append(pyglet.shapes.Line(x=start_node.x,
-                               y=start_node.y,
-                               x2=end_node.x,
-                               y2=end_node.y,
-                               color=PATH_COLOR,
-                               thickness=PATH_WIDTH,
-                               batch=self.paths_batch))
+            line = pyglet.shapes.Line(x=start_node.x,
+                                      y=start_node.y,
+                                      x2=end_node.x,
+                                      y2=end_node.y,
+                                      color=PATH_COLOR,
+                                      thickness=PATH_WIDTH,
+                                      batch=self.paths_batch)
+            self.shapes.append(line)
 
     def draw(self):
         self.paths_batch.draw()

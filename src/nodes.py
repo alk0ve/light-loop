@@ -14,18 +14,20 @@ class Node(object):
     Specifies an assets and its position on screen.
     """
 
-    DEFAULT_HEIGHT: Final = 64
-    DEFAULT_WIDTH: Final = 64
+    DEFAULT_SIZE: Final = 64
 
     def __init__(self,
-                 asset_name: str,
+                 asset_name: str | None,
                  x: int,
                  y: int,
-                 width: int = DEFAULT_WIDTH,
-                 height: int = DEFAULT_HEIGHT) -> None:
-        self.sprite = pyglet.sprite.Sprite(load_image(asset_name), x=x, y=y)
-        self.sprite.width = width
-        self.sprite.height = height
+                 width: int = DEFAULT_SIZE,
+                 height: int = DEFAULT_SIZE) -> None:
+        if asset_name is not None:
+            self.sprite = pyglet.sprite.Sprite(load_image(asset_name), x=x, y=y)
+            self.sprite.width = width
+            self.sprite.height = height
+        else:
+            self.sprite = None
         self.x = x
         self.y = y
 
@@ -36,7 +38,7 @@ class NoNode(Node):
     """
 
     def __init__(self, x: int, y: int):
-        super().__init__("nodes/no-node.png", x, y)
+        super().__init__(None, x, y)
 
 
 ####################################################################################
