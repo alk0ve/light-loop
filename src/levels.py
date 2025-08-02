@@ -26,6 +26,9 @@ class Level(object):
         self.board.draw()
 
 
+#  wrap levels in functions to avoid creating sprites before a pyglet window exists
+
+
 def second_level() -> Level:
     return Level(Board(create_nodes([(NodeType.BROADCAST_ONCE, 200, 400),
                                      (NodeType.BROADCAST_ONCE, 400, 400),

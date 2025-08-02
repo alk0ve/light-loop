@@ -1,4 +1,7 @@
 import pyglet
+from pathlib import Path
+pyglet.resource.path = [str(Path(__file__).resolve().parent)]
+pyglet.resource.reindex()
 
 
 def load_image(name: str):
