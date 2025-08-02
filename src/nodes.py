@@ -2,6 +2,7 @@ from enum import IntEnum, auto
 from assets.asset_loader import load_image
 import pyglet
 from typing import Final
+from abc import ABC, abstractmethod
 
 
 class NodeType(IntEnum):
@@ -10,7 +11,7 @@ class NodeType(IntEnum):
     BROADCAST_ONCE = auto()
 
 
-class Node(object):
+class Node(ABC):
     """
     Represents a nodes on the board.
     Specifies an assets and its position on screen.
@@ -33,6 +34,7 @@ class Node(object):
         self.x = x
         self.y = y
 
+    @abstractmethod
     def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
         raise NotImplementedError
 

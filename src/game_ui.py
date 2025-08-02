@@ -58,7 +58,7 @@ class GameUI(pyglet.window.Window):
                     self.animation_ends()
                     return
 
-                if self.pulses is not None and self.pulses.alive():
+                if self.pulses is not None and self.pulses.in_progress():
                     self.pulses.update(delta_time)
                 else:
                     self.front = self.level.board.next_pulse_front(self.front)
