@@ -25,16 +25,15 @@ class Level(object):
     def draw(self):
         self.board.draw()
 
-        # TODO draw UI elements
 
-
-SECOND_LEVEL = Level(Board(create_nodes([(NodeType.BROADCAST_ONCE, 200, 400),
-                                         (NodeType.BROADCAST_ONCE, 400, 400),
-                                         (NodeType.BROADCAST_ONCE, 500, 600),
-                                         (NodeType.BROADCAST, 600, 400),
-                                         (NodeType.BROADCAST_ONCE, 600, 200),
-                                         (NodeType.BLOCK, 400, 200)]),
-                           {(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (4, 5), (5, 1)}),
-                     [],
-                     10,
-                     6)
+def second_level() -> Level:
+    return Level(Board(create_nodes([(NodeType.BROADCAST_ONCE, 200, 400),
+                                     (NodeType.BROADCAST_ONCE, 400, 400),
+                                     (NodeType.BROADCAST_ONCE, 500, 600),
+                                     (NodeType.BROADCAST, 600, 400),
+                                     (NodeType.BROADCAST_ONCE, 600, 200),
+                                     (NodeType.BLOCK, 400, 200)]),
+                       {(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (4, 5), (5, 1)}),
+                 [],
+                 10,
+                 6)

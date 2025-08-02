@@ -68,7 +68,7 @@ class LoopDetector(object):
     """
     def __init__(self, node_count: int, neighbours: list[set[int]]) -> None:
         self.unreported_loops = find_all_loops(node_count, neighbours)
-        print(f"all loops: {self.unreported_loops}")
+        # print(f"all loops: {self.unreported_loops}")
         self.visited_paths = set()
 
     def step(self, front: set[tuple[int, int]]) -> list[frozenset[tuple[int, int]]]:
@@ -83,5 +83,5 @@ class LoopDetector(object):
             self.unreported_loops.remove(loop)
 
         if len(detected_loops) > 0:
-            print(f"detected_loops = {detected_loops}")
+           print(f"detected_loops = {detected_loops}")
         return detected_loops
