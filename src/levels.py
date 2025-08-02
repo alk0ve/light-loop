@@ -14,11 +14,11 @@ class Level(object):
     def __init__(self,
                  initial_board: Board,
                  available_nodes: list[Node],
-                 mana: int,
+                 starting_mana: int,
                  turn_limit: int) -> None:
         self.board = initial_board
         self.available_nodes = available_nodes
-        self.mana = mana
+        self.starting_mana = starting_mana
         self.turn_limit = turn_limit
         self.current_turn = 1
 
@@ -31,10 +31,10 @@ class Level(object):
 SECOND_LEVEL = Level(Board(create_nodes([(NodeType.BROADCAST_ONCE, 200, 400),
                                          (NodeType.BROADCAST_ONCE, 400, 400),
                                          (NodeType.BROADCAST_ONCE, 500, 600),
-                                         (NodeType.BROADCAST_ONCE, 600, 400),
+                                         (NodeType.BROADCAST, 600, 400),
                                          (NodeType.BROADCAST_ONCE, 600, 200),
                                          (NodeType.BLOCK, 400, 200)]),
                            {(0, 1), (1, 2), (1, 3), (1, 5), (2, 3), (3, 4), (4, 5), (5, 1)}),
                      [],
-                     0,
-                     99)
+                     10,
+                     6)

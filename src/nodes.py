@@ -6,6 +6,7 @@ from typing import Final
 
 class NodeType(IntEnum):
     BLOCK = auto()
+    BROADCAST = auto()
     BROADCAST_ONCE = auto()
 
 
@@ -74,13 +75,25 @@ class BroadcastOnceNode(Node):
         self.emitted = False
 
 
-####################################################################################
+class BroadcastNode(Node):
+    """
+    Emit pulses to all the empty paths.
+    """
+
+    def __init__(self, x: int, y: int):
+        super().__init__("nodes/Dark_red_ crystal1.png", x, y)
+
+    def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
+        return neighbours
+
 
 def create_node(node_type: NodeType, x: int, y: int) -> Node:
     # print(f"create_node(node_type = {node_type}, x = {x}, y={y})")
     match node_type:
         case NodeType.BLOCK:
             return BlockNode(x, y)
+        case NodeType.BROADCAST:
+            return BroadcastNode(x, y)
         case NodeType.BROADCAST_ONCE:
             return BroadcastOnceNode(x, y)
         case _:
