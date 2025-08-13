@@ -6,8 +6,10 @@ from itertools import chain
 
 
 class Loop(Animation):
-    _LOOP_DURATION: Final = 1.0
-    _LOOP_COLOR: Final = (255, 215, 0)
+    _LOOP_DURATION: Final = 1.8
+    _FADE_IN_THRESHOLD: Final = 0.6  # time until loop is opaque
+    _FADE_OUT_THRESHOLD: Final = 1.2  # time until loop starts disappearing
+    _LOOP_COLOR: Final = (255, 215, 0, 0)
     _LOOP_WIDTH: Final = 10.0
 
     def __init__(self, loop_edges: Iterable[tuple[Node, Node]]) -> None:
@@ -37,7 +39,19 @@ class Loop(Animation):
 
     def update(self, delta_time) -> None:
         self.t += delta_time
-        # TODO loop fadeout
+        if self.t < Loop._FADE_IN_THRESHOLD:
+            # gradually more and more opaque
+            opacity = int(255 * self.t / Loop._FADE_IN_THRESHOLD)
+        elif self.t < Loop._FADE_OUT_THRESHOLD:
+            # fully opaque
+            opacity = 255
+        else:
+            # gradually less and less opaque
+            ratio = (self.t - Loop._FADE_OUT_THRESHOLD) / (Loop._LOOP_DURATION - Loop._FADE_OUT_THRESHOLD)
+            opacity = 255 - int(255 * ratio)
+
+        for shape in self.shapes:
+            shape.opacity = opacity
 
     def in_progress(self) -> bool:
         return self.t < Loop._LOOP_DURATION
