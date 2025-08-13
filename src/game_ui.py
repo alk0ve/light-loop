@@ -5,6 +5,7 @@ from pyglet.event import EVENT_HANDLE_STATE
 from enum import IntEnum, auto
 from levels import Level
 from loop import LoopDetector
+from animation import AnimationSequence
 
 _WINDOW_WIDTH: Final = 1200
 _WINDOW_HEIGHT: Final = 800
@@ -31,8 +32,7 @@ class GameUI(pyglet.window.Window):
         self.turn_label = pyglet.text.Label("0", color=_TURN_COUNTER_COLOR,
                                             font_size=25, x=180, y=10, batch=self.ui_batch)
 
-        self.front = set()
-        self.pulses = None
+        self.animation = None
         self.ui_state = UIState.EMPTY
         self.loop_detector = None
 
@@ -54,22 +54,14 @@ class GameUI(pyglet.window.Window):
                 # TODO UI
                 return
             case UIState.ANIMATING:
-                if len(self.front) == 0:
-                    self.animation_ends()
-                    return
-
-                if self.pulses is not None and self.pulses.in_progress():
-                    self.pulses.update(delta_time)
+                if self.animation is not None and self.animation.in_progress():
+                    self.animation.update(delta_time)
                 else:
-                    self.front = self.level.board.next_pulse_front(self.front)
-                    # print(f"front: {self.front}")
-                    loops = self.loop_detector.step(self.front)
-                    self.pulses = self.level.board.create_pulse_front(self.front, self.ui_batch)
+                    self.animation_ends()
 
     def animation_ends(self) -> None:
-        self.level.board.reset()  # check none?
-        self.front = set()
-        self.pulses = None
+        self.level.board.reset()
+        self.animation = None
         self.ui_state = UIState.EDITING
 
     def on_key_press(self, symbol, modifiers) -> None:
@@ -77,11 +69,20 @@ class GameUI(pyglet.window.Window):
             case UIState.EDITING:
                 if symbol == key.SPACE:
                     # start animating
-                    self.front = self.level.board.first_pulse_front()
+                    animations = []
+                    front = self.level.board.first_pulse_front()
                     # print(f"first front: {self.front}")
-                    # TODO something with loops
-                    loops = self.loop_detector.step(self.front)
-                    self.pulses = self.level.board.create_pulse_front(self.front, self.ui_batch)
+
+                    while len(front) > 0:
+                        # TODO add loop detection animations
+                        loops = self.loop_detector.step(front)
+                        animations.append(self.level.board.create_pulse_front(front, self.ui_batch))
+
+                        front = self.level.board.next_pulse_front(front)
+                        # print(f"front: {self.front}")
+
+                    self.animation = AnimationSequence(animations)
+                    self.animation.start(self.ui_batch)
                     self.ui_state = UIState.ANIMATING
             case UIState.ANIMATING:
                 if symbol == key.SPACE:

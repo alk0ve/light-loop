@@ -31,12 +31,13 @@ class Pulse(object):
 
 
 class PulseFront(Animation):
-    pulses: list[Pulse]
-
-    t: float = 0
-
     def __init__(self, paths: list[tuple[Node, Node]], batch: pyglet.graphics.Batch) -> None:
-        self.pulses = [Pulse(path[0], path[1], batch) for path in paths]
+        self.paths = paths
+        self.pulses = None
+        self.t = 0.0
+
+    def start(self, batch: pyglet.graphics.Batch) -> None:
+        self.pulses = [Pulse(path[0], path[1], batch) for path in self.paths]
 
     def update(self, delta_time) -> None:
         self.t += delta_time
