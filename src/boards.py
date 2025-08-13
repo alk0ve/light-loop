@@ -1,13 +1,14 @@
 import pyglet
 from nodes import Node
 from typing import Final
-from pulse import PulseFront
+from pulses import PulseFront
+from loops import Loop
 
-PATH_COLOR: Final = (50, 82, 123)
-PATH_WIDTH: Final = 20.0
+_PATH_COLOR: Final = (50, 82, 123)
+_PATH_WIDTH: Final = 20.0
 
-INNER_PATH_COLOR: Final = (79, 115, 142)
-FRAME_THICKNESS: Final = 8
+_INNER_PATH_COLOR: Final = (79, 115, 142)
+_FRAME_THICKNESS: Final = 8
 
 
 class Board(object):
@@ -22,7 +23,7 @@ class Board(object):
     def __init__(self, nodes: list[Node], paths: set[tuple[int, int]]) -> None:
         # TODO fog of war
         self.nodes = nodes
-        self.paths = paths # used for rendering
+        self.paths = paths  # used for rendering
         self.batch = pyglet.graphics.Batch()
         self.background = pyglet.graphics.Group(order=0)
         self.background2 = pyglet.graphics.Group(order=1)
@@ -41,7 +42,7 @@ class Board(object):
         # mark the staring node
         circle = pyglet.shapes.Circle(x=nodes[0].x, y=nodes[0].y,
                                       radius=2 * Node.DEFAULT_SIZE // 3,
-                                      color=PATH_COLOR,
+                                      color=_PATH_COLOR,
                                       batch=self.batch,
                                       group=self.background)
         self.shapes.append(circle)
@@ -53,13 +54,13 @@ class Board(object):
             # add a circle as background for each node
             circle = pyglet.shapes.Circle(x=node.x, y=node.y,
                                           radius=Node.DEFAULT_SIZE // 2,
-                                          color=PATH_COLOR,
+                                          color=_PATH_COLOR,
                                           batch=self.batch,
                                           group=self.background)
             self.shapes.append(circle)
             inner_circle = pyglet.shapes.Circle(x=node.x, y=node.y,
-                                                radius=(Node.DEFAULT_SIZE // 2) - FRAME_THICKNESS,
-                                                color=INNER_PATH_COLOR,
+                                                radius=(Node.DEFAULT_SIZE // 2) - _FRAME_THICKNESS,
+                                                color=_INNER_PATH_COLOR,
                                                 batch=self.batch,
                                                 group=self.background2)
             self.shapes.append(inner_circle)
@@ -72,8 +73,8 @@ class Board(object):
                                       y=start_node.y,
                                       x2=end_node.x,
                                       y2=end_node.y,
-                                      color=PATH_COLOR,
-                                      thickness=PATH_WIDTH,
+                                      color=_PATH_COLOR,
+                                      thickness=_PATH_WIDTH,
                                       batch=self.batch,
                                       group=self.background)
             self.shapes.append(line)
@@ -81,8 +82,8 @@ class Board(object):
                                             y=start_node.y,
                                             x2=end_node.x,
                                             y2=end_node.y,
-                                            color=INNER_PATH_COLOR,
-                                            thickness=PATH_WIDTH - FRAME_THICKNESS,
+                                            color=_INNER_PATH_COLOR,
+                                            thickness=_PATH_WIDTH - _FRAME_THICKNESS,
                                             batch=self.batch,
                                             group=self.background2)
             self.shapes.append(inner_line)
@@ -114,5 +115,8 @@ class Board(object):
 
         return next_front
 
-    def create_pulse_front(self, front: set[tuple[int, int]], batch: pyglet.graphics.Batch) -> PulseFront:
-        return PulseFront([(self.nodes[path[0]], self.nodes[path[1]]) for path in front], batch)
+    def create_pulse_front(self, front: set[tuple[int, int]]) -> PulseFront:
+        return PulseFront([(self.nodes[path[0]], self.nodes[path[1]]) for path in front])
+
+    def create_loop(self, loop_edges: frozenset[tuple[int, int]]) -> Loop:
+        return Loop([(self.nodes[path[0]], self.nodes[path[1]]) for path in loop_edges])

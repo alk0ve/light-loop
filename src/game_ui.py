@@ -4,8 +4,8 @@ from pyglet.window import key
 from pyglet.event import EVENT_HANDLE_STATE
 from enum import IntEnum, auto
 from levels import Level
-from loop import LoopDetector
-from animation import AnimationSequence
+from loop_detector import LoopDetector
+from animations import AnimationSequence
 
 _WINDOW_WIDTH: Final = 1200
 _WINDOW_HEIGHT: Final = 800
@@ -75,8 +75,10 @@ class GameUI(pyglet.window.Window):
 
                     while len(front) > 0:
                         # TODO add loop detection animations
+                        animations.append(self.level.board.create_pulse_front(front))
                         loops = self.loop_detector.step(front)
-                        animations.append(self.level.board.create_pulse_front(front, self.ui_batch))
+                        for loop in loops:
+                            animations.append(self.level.board.create_loop(loop))
 
                         front = self.level.board.next_pulse_front(front)
                         # print(f"front: {self.front}")

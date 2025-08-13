@@ -1,4 +1,4 @@
-from board import Board
+from boards import Board
 from nodes import Node, create_nodes, NodeType
 
 

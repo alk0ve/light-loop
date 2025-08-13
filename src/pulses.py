@@ -2,7 +2,7 @@ import pyglet
 from assets.asset_loader import load_image
 from nodes import Node
 from typing import Final
-from animation import Animation
+from animations import Animation
 
 TRANSIT_TIME: Final = 1.0
 
@@ -31,7 +31,7 @@ class Pulse(object):
 
 
 class PulseFront(Animation):
-    def __init__(self, paths: list[tuple[Node, Node]], batch: pyglet.graphics.Batch) -> None:
+    def __init__(self, paths: list[tuple[Node, Node]]) -> None:
         self.paths = paths
         self.pulses = None
         self.t = 0.0

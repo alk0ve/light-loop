@@ -48,7 +48,7 @@ def _find_all_loops_dfs(node_count: int,
         _find_all_loops_dfs(node_count, neighbours,
                             found_loops, neighbour,
                             current_path + [current_node],
-                            depth+1)
+                            depth + 1)
 
 
 def find_all_loops(node_count: int, neighbours: list[set[int]]) -> set[frozenset[tuple[int, int]]]:
@@ -66,6 +66,7 @@ class LoopDetector(object):
     Detects loops given paths.
     Reports each loop exactly once.
     """
+
     def __init__(self, node_count: int, neighbours: list[set[int]]) -> None:
         self.unreported_loops = find_all_loops(node_count, neighbours)
         # print(f"all loops: {self.unreported_loops}")
@@ -83,5 +84,5 @@ class LoopDetector(object):
             self.unreported_loops.remove(loop)
 
         if len(detected_loops) > 0:
-           print(f"detected_loops = {detected_loops}")
+            print(f"detected_loops = {detected_loops}")
         return detected_loops
