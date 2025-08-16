@@ -6,6 +6,7 @@ from enum import IntEnum, auto
 from levels import Level
 from loop_detector import LoopDetector
 from animations import AnimationSequence
+from state_machines import UIStateMachine
 
 _WINDOW_WIDTH: Final = 1200
 _WINDOW_HEIGHT: Final = 800
@@ -33,69 +34,86 @@ class GameUI(pyglet.window.Window):
                                             font_size=25, x=180, y=10, batch=self.ui_batch)
 
         self.animation = None
-        self.ui_state = UIState.EMPTY
         self.loop_detector = None
+
+        # define state machine callbacks
+        def empty_draw() -> None:
+            self.clear()
+            self.ui_batch.draw()
+
+        def regular_draw() -> None:
+            self.clear()
+            self.level.draw()
+            self.ui_batch.draw()
+
+        def update_animating(delta_time: float) -> UIState:
+            if self.animation is not None and self.animation.in_progress():
+                self.animation.update(delta_time)
+            else:
+                return UIState.EDITING
+
+        def exit_empty(_: UIState) -> None:
+            self.mana = self.level.starting_mana
+            self.turns_left = self.level.turn_limit
+            self.loop_detector = LoopDetector(len(self.level.board.nodes), self.level.board.neighbours)
+            self.update_labels()
+
+        def exit_animating(_: UIState) -> None:
+            self.level.board.reset()
+            self.animation = None
+
+        def enter_animating(_: UIState) -> None:
+            # start animating
+            animations = []
+            front = self.level.board.first_pulse_front()
+            # print(f"first front: {self.front}")
+
+            while len(front) > 0:
+                animations.append(self.level.board.create_pulse_front(front))
+                loops = self.loop_detector.step(front)
+                for loop in loops:
+                    animations.append(self.level.board.create_loop(loop))
+
+                front = self.level.board.next_pulse_front(front)
+                # print(f"front: {self.front}")
+
+            self.animation = AnimationSequence(animations)
+            self.animation.start(self.ui_batch)
+
+        def handle_input_animating(symbol: int, modifiers: int) -> UIState:
+            if symbol == key.SPACE:
+                return UIState.EDITING
+
+        def handle_input_editing(symbol: int, modifiers: int) -> UIState:
+            if symbol == key.SPACE:
+                return UIState.ANIMATING
+
+        self.state_machine = UIStateMachine(initial_state=UIState.EMPTY,
+                                            key_handlers={UIState.ANIMATING: handle_input_animating,
+                                                          UIState.EDITING: handle_input_editing},
+                                            update_handlers={UIState.ANIMATING: update_animating},
+                                            draw_handlers={UIState.EMPTY: empty_draw,
+                                                           '*': regular_draw},
+                                            on_exit_handlers={UIState.ANIMATING: exit_animating,
+                                                              UIState.EMPTY: exit_empty},
+                                            on_enter_handlers={UIState.ANIMATING: enter_animating})
 
     def load_level(self, level: Level) -> None:
         self.level = level
-        self.mana = level.starting_mana
-        self.turns_left = level.turn_limit
-        self.loop_detector = LoopDetector(len(level.board.nodes), level.board.neighbours)
-        self.update_labels()
-        self.ui_state = UIState.EDITING
+        self.state_machine.transition(UIState.EDITING)
 
     def update_labels(self) -> None:
         self.mana_label.text = f"mana: {self.mana}"
         self.turn_label.text = f"turns left: {self.turns_left}"
 
     def update(self, delta_time: float) -> None:
-        match self.ui_state:
-            case UIState.EDITING:
-                # TODO UI
-                return
-            case UIState.ANIMATING:
-                if self.animation is not None and self.animation.in_progress():
-                    self.animation.update(delta_time)
-                else:
-                    self.animation_ends()
+        self.state_machine.update(delta_time)
 
-    def animation_ends(self) -> None:
-        self.level.board.reset()
-        self.animation = None
-        self.ui_state = UIState.EDITING
-
-    def on_key_press(self, symbol, modifiers) -> None:
-        match self.ui_state:
-            case UIState.EDITING:
-                if symbol == key.SPACE:
-                    # start animating
-                    animations = []
-                    front = self.level.board.first_pulse_front()
-                    # print(f"first front: {self.front}")
-
-                    while len(front) > 0:
-                        # TODO add loop detection animations
-                        animations.append(self.level.board.create_pulse_front(front))
-                        loops = self.loop_detector.step(front)
-                        for loop in loops:
-                            animations.append(self.level.board.create_loop(loop))
-
-                        front = self.level.board.next_pulse_front(front)
-                        # print(f"front: {self.front}")
-
-                    self.animation = AnimationSequence(animations)
-                    self.animation.start(self.ui_batch)
-                    self.ui_state = UIState.ANIMATING
-            case UIState.ANIMATING:
-                if symbol == key.SPACE:
-                    # stop animating
-                    self.animation_ends()
+    def on_key_press(self, symbol: int, modifiers: int) -> None:
+        self.state_machine.handle_key(symbol, modifiers)
 
     def on_draw(self) -> EVENT_HANDLE_STATE:
-        self.clear()
-        if self.ui_state != UIState.EMPTY:
-            self.level.draw()
-        self.ui_batch.draw()
+        self.state_machine.draw()
 
     def start(self):
         pyglet.clock.schedule_interval(self.update, 1 / _FRAME_RATE)
