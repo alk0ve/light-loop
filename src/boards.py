@@ -91,9 +91,9 @@ class Board(object):
     def draw(self):
         self.batch.draw()
 
-    def reset(self):
+    def reset_animation(self):
         for node in self.nodes:
-            node.reset()
+            node.reset_animation()
 
     def first_pulse_front(self) -> set[tuple[int, int]]:
         front = self.nodes[0].emit(self.neighbours[0], set())

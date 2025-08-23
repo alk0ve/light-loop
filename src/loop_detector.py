@@ -5,12 +5,21 @@ from debug_print import DebugPrintMixin, DebugCategory
 class LoopDetector(DebugPrintMixin):
     """
     Detects loops given paths.
-    Reports each loop exactly once.
+    Reports each loop exactly once (unless reset).
     """
+
+    unreported_loops: set[frozenset[tuple[int, int]]]
+    visited_paths: set[tuple[int, int]]
+
 
     def __init__(self, node_count: int, neighbours: list[set[int]]) -> None:
         DebugPrintMixin.__init__(self, DebugCategory.LOOPS)
-        self.unreported_loops = self._find_all_loops(node_count, neighbours)
+        self.node_count = node_count
+        self.neighbours = neighbours
+        self.reset()
+
+    def reset(self) -> None:
+        self.unreported_loops = self._find_all_loops(self.node_count, self.neighbours)
         self.print(f"all loops: {self.unreported_loops}")
         self.visited_paths = set()
 

@@ -38,7 +38,7 @@ class Node(ABC):
     def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
         raise NotImplementedError
 
-    def reset(self):
+    def reset_animation(self):
         pass
 
 
@@ -53,7 +53,7 @@ class BlockNode(Node):
     def emit(self, neighbours: set[int], pulsing_neighbours: set[int]) -> set[int]:
         return set()
 
-    def reset(self):
+    def reset_animation(self):
         pass
 
 
@@ -73,7 +73,7 @@ class BroadcastOnceNode(Node):
         self.emitted = True
         return neighbours - pulsing_neighbours
 
-    def reset(self):
+    def reset_animation(self):
         self.emitted = False
 
 

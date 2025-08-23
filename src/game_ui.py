@@ -1,12 +1,13 @@
-from typing import Sequence, Final
+from typing import Final
 import pyglet
 from pyglet.window import key
 from pyglet.event import EVENT_HANDLE_STATE
 from enum import IntEnum, auto
 from levels import Level
-from loop_detector import LoopDetector
 from animations import AnimationSequence
 from state_machines import UIStateMachine
+from debug_print import DebugCategory, DebugPrintMixin
+from game_states import GameState
 
 _WINDOW_WIDTH: Final = 1200
 _WINDOW_HEIGHT: Final = 800
@@ -21,20 +22,21 @@ class UIState(IntEnum):
     EDITING = auto()
 
 
-class GameUI(pyglet.window.Window):
+class GameUI(pyglet.window.Window, DebugPrintMixin):
+    game_state: GameState | None
+    animation: AnimationSequence | None
+
     def __init__(self) -> None:
+        DebugPrintMixin.__init__(self, DebugCategory.UI)
         super().__init__(resizable=False, width=_WINDOW_WIDTH, height=_WINDOW_HEIGHT, caption="light loop")
-        self.level = None
         self.ui_batch = pyglet.graphics.Batch()
-        self.mana = 0
-        self.turns_left = 0
+        self.game_state = None
         self.mana_label = pyglet.text.Label("0", color=_MANA_COLOR,
                                             font_size=25, x=10, y=10, batch=self.ui_batch)
         self.turn_label = pyglet.text.Label("0", color=_TURN_COUNTER_COLOR,
                                             font_size=25, x=180, y=10, batch=self.ui_batch)
 
         self.animation = None
-        self.loop_detector = None
 
         # define state machine callbacks
         def empty_draw() -> None:
@@ -43,8 +45,9 @@ class GameUI(pyglet.window.Window):
 
         def regular_draw() -> None:
             self.clear()
-            self.level.draw()
+            self.game_state.draw()
             self.ui_batch.draw()
+            self.update_labels()
 
         def update_animating(delta_time: float) -> UIState:
             if self.animation is not None and self.animation.in_progress():
@@ -52,30 +55,24 @@ class GameUI(pyglet.window.Window):
             else:
                 return UIState.EDITING
 
-        def exit_empty(_: UIState) -> None:
-            self.mana = self.level.starting_mana
-            self.turns_left = self.level.turn_limit
-            self.loop_detector = LoopDetector(len(self.level.board.nodes), self.level.board.neighbours)
-            self.update_labels()
-
         def exit_animating(_: UIState) -> None:
-            self.level.board.reset()
+            self.game_state.reset_animation()
             self.animation = None
 
         def enter_animating(_: UIState) -> None:
             # start animating
             animations = []
-            front = self.level.board.first_pulse_front()
-            # print(f"first front: {self.front}")
+            front = self.game_state.board.first_pulse_front()
+            self.print(f"first front: {front}")
 
             while len(front) > 0:
-                animations.append(self.level.board.create_pulse_front(front))
-                loops = self.loop_detector.step(front)
+                animations.append(self.game_state.board.create_pulse_front(front))
+                loops = self.game_state.loop_detector.step(front)
                 for loop in loops:
-                    animations.append(self.level.board.create_loop(loop))
+                    animations.append(self.game_state.board.create_loop(loop))
 
-                front = self.level.board.next_pulse_front(front)
-                # print(f"front: {self.front}")
+                front = self.game_state.board.next_pulse_front(front)
+                self.print(f"front: {front}")
 
             self.animation = AnimationSequence(animations)
             self.animation.start(self.ui_batch)
@@ -94,17 +91,16 @@ class GameUI(pyglet.window.Window):
                                             update_handlers={UIState.ANIMATING: update_animating},
                                             draw_handlers={UIState.EMPTY: empty_draw,
                                                            '*': regular_draw},
-                                            on_exit_handlers={UIState.ANIMATING: exit_animating,
-                                                              UIState.EMPTY: exit_empty},
+                                            on_exit_handlers={UIState.ANIMATING: exit_animating},
                                             on_enter_handlers={UIState.ANIMATING: enter_animating})
 
     def load_level(self, level: Level) -> None:
-        self.level = level
+        self.game_state = GameState(level)
         self.state_machine.transition(UIState.EDITING)
 
     def update_labels(self) -> None:
-        self.mana_label.text = f"mana: {self.mana}"
-        self.turn_label.text = f"turns left: {self.turns_left}"
+        self.mana_label.text = f"mana: {self.game_state.mana}"
+        self.turn_label.text = f"turns left: {self.game_state.turns_left}"
 
     def update(self, delta_time: float) -> None:
         self.state_machine.update(delta_time)

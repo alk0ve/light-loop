@@ -6,13 +6,15 @@ class DebugCategory(Enum):
     STATE_MACHINE = auto()
     UI = auto()
     LOOPS = auto()
+    GAME = auto()
 
 
 _VERBOSE: Final = {DebugCategory.STATE_MACHINE: False,
                    DebugCategory.UI: False,
-                   DebugCategory.LOOPS: True}
+                   DebugCategory.LOOPS: False,
+                   DebugCategory.GAME: False}
 
-assert len(_VERBOSE) == len(DebugCategory)
+assert len(_VERBOSE) == len(DebugCategory), "Did you forget a category in the verbosity list?"
 
 
 class DebugPrintMixin(object):
