@@ -1,8 +1,10 @@
 import pyglet
-from typing import Final, Iterable
+from typing import Final, Iterable, Callable
 from animations import Animation
 from nodes import Node
 from itertools import chain
+
+from delayed_action import DelayedAction
 
 
 class Loop(Animation):
@@ -12,7 +14,8 @@ class Loop(Animation):
     _LOOP_COLOR: Final = (255, 215, 0, 0)
     _LOOP_WIDTH: Final = 10.0
 
-    def __init__(self, loop_edges: Iterable[tuple[Node, Node]]) -> None:
+    def __init__(self, loop_edges: Iterable[tuple[Node, Node]], end_action: DelayedAction) -> None:
+        super().__init__(end_action)
         self.t = 0
         self.loop_edges = loop_edges
         self.shapes = []

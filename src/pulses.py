@@ -32,6 +32,7 @@ class Pulse(object):
 
 class PulseFront(Animation):
     def __init__(self, paths: list[tuple[Node, Node]]) -> None:
+        super().__init__()
         self.paths = paths
         self.pulses = None
         self.t = 0.0

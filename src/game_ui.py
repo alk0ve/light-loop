@@ -69,7 +69,7 @@ class GameUI(pyglet.window.Window, DebugPrintMixin):
                 animations.append(self.game_state.board.create_pulse_front(front))
                 loops = self.game_state.loop_detector.step(front)
                 for loop in loops:
-                    animations.append(self.game_state.board.create_loop(loop))
+                    animations.append(self.game_state.create_loop(loop))
 
                 front = self.game_state.board.next_pulse_front(front)
                 self.print(f"front: {front}")

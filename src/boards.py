@@ -1,8 +1,9 @@
 import pyglet
 from nodes import Node
-from typing import Final
+from typing import Final, Callable
 from pulses import PulseFront
 from loops import Loop
+from delayed_action import DelayedAction
 
 _PATH_COLOR: Final = (50, 82, 123)
 _PATH_WIDTH: Final = 20.0
@@ -118,5 +119,5 @@ class Board(object):
     def create_pulse_front(self, front: set[tuple[int, int]]) -> PulseFront:
         return PulseFront([(self.nodes[path[0]], self.nodes[path[1]]) for path in front])
 
-    def create_loop(self, loop_edges: frozenset[tuple[int, int]]) -> Loop:
-        return Loop([(self.nodes[path[0]], self.nodes[path[1]]) for path in loop_edges])
+    def create_loop(self, loop_edges: frozenset[tuple[int, int]], end_action: DelayedAction) -> Loop:
+        return Loop([(self.nodes[path[0]], self.nodes[path[1]]) for path in loop_edges], end_action)
